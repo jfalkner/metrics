@@ -7,12 +7,12 @@ package falkner.jayson.metrics
   */
 object Distribution {
 
-  case class Continuous(sampleNum: Int, binNum: Int, binWidth: Float, mean: Float, median: Float, min: Float, max: Float)
+  case class Continuous(sampleNum: Int, binNum: Int, binWidth: Float, mean: Float, median: Float, min: Float, max: Float, bins: Seq[Int])
 
-  case class Discrete(sampleNum: Int, binNum: Int, binWidth: Int, mean: Float, median: Int, min: Int, max: Int)
+  case class Discrete(sampleNum: Int, binNum: Int, binWidth: Int, mean: Float, median: Int, min: Int, max: Int, bins: Seq[Int])
 
   def calcDiscreteDist(vals: Seq[Int], nBins: Int = 30, sort: Boolean = false): Discrete = sort match {
-    case false => calcDiscreteDist(vals.sorted, nBins)
+    case true => calcDiscreteDist(vals.sorted, nBins)
     case _ =>
       val min = vals.head
       val max = vals.last
@@ -23,7 +23,8 @@ object Distribution {
         vals.sum.toFloat / vals.size,
         vals(vals.size / 2),
         min,
-        max
+        max,
+        Nil // TODO: calc bins
       )
   }
 
@@ -39,7 +40,8 @@ object Distribution {
         vals.sum / vals.size,
         vals(vals.size / 2),
         min,
-        max
+        max,
+        Nil // TODO: calc bins
       )
   }
 

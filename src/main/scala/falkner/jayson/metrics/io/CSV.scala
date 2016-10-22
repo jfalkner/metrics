@@ -2,8 +2,11 @@ package falkner.jayson.metrics.io
 
 import java.nio.file.{Files, Path, StandardOpenOption}
 
-import com.pacb.itg.metrics._
-s
+import falkner.jayson.metrics._
+import spray.json.{JsArray, JsBoolean, JsNumber, JsObject, JsString, JsValue}
+
+
+
 
 /**
   * Utility code for writing CSV exports of the data
@@ -14,15 +17,17 @@ s
   */
 object CSV {
 
-  case class Result(header: String, rows: Seq[String])
+  def write(out: Path, ml: Metrics): Path = {
+    val vals = ml.values.flatMap(m => export(m)).map(v => (escape(v._1), escape(v._2)))
+    Files.write(out, Seq(vals.map(_._1), vals.map(_._2)).map(_.mkString(",")).mkString("\n").getBytes)
+  }
 
-  // serializes one movie context
-  def write(out: Path, metrics: Seq[ExactValueMap]): Path = {
-    val all = metrics.flatMap(m => for ((k, v) <- m.csv) yield (k.name, v))
-    val r = Result(all.map(_._1).map(escape).mkString(","), Seq(all.map(_._2).mkString(","))) // TODO: all for many rows from one writer
-    Files.write(out, r.header.getBytes)
-    Files.write(out, ("\n" + r.rows.mkString("\n")).getBytes, StandardOpenOption.APPEND))
-    out
+  def export(m: Metric, prefix: String = ""): List[(String, String)] = m match {
+    case d: Dist => d.metrics.flatMap(m => export(m, d.name))
+    case n: Num => List((s"$prefix: ${n.name}", n.value))
+    case s: Str => List((s"$prefix: ${s.name}", s.value))
+    case b: Bool => List((s"$prefix: ${b.name}", b.value.toString))
+    case _ => Nil // skip serializing arrays
   }
 
   def escape(s: String): String = s.replace(",", "").replace("\n", "").replace("\r", "").replace("\t", " ").trim
