@@ -16,15 +16,18 @@ object Distribution {
     case _ =>
       val min = vals.head
       val max = vals.last
+      val binWidth = (max - min) / nBins
+      val bins = vals.map(v => (((v - min)/binWidth).toInt)).groupBy(identity).map{ case (k, v) => (k, v.size)}
       Discrete(
         vals.size,
         nBins,
-        (max - min) / nBins,
+        binWidth,
         vals.sum.toFloat / vals.size,
         vals(vals.size / 2),
         min,
         max,
-        Nil // TODO: calc bins
+        for ( i <- 0 to (nBins - 1))
+          yield if (i < nBins - 1) bins.getOrElse(i, 0) else bins.getOrElse(i, 0) + bins(i + 1)
       )
   }
 
@@ -33,6 +36,8 @@ object Distribution {
     case _ =>
       val min = vals.head
       val max = vals.last
+      val binWidth = (max - min) / nBins
+      val bins = vals.map(v => (((v - min)/binWidth).toInt)).groupBy(identity).map{ case (k, v) => (k, v.size)}
       Continuous(
         vals.size,
         nBins,
@@ -41,7 +46,8 @@ object Distribution {
         vals(vals.size / 2),
         min,
         max,
-        Nil // TODO: calc bins
+        for ( i <- 0 to (nBins - 1))
+          yield if (i < nBins - 1) bins.getOrElse(i, 0) else bins.getOrElse(i, 0) + bins(i + 1)
       )
   }
 

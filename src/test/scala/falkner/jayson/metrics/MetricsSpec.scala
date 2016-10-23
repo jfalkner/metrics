@@ -37,19 +37,42 @@ class MetricsSpec extends Specification {
         lines.get(1) mustEqual "Bar," +
           "0.1,3,0.5,0.1,3,1.2," +
           "true," +
-          "3,2,0.5,1.5,1.5,1.0,2.0," +
-          "3,2,2,4.0,4,2,6," +
+          // continuous and discrete dist
+          "3,3,0.33333334,0.5,0.5,0.0,1.0," +
+          "3,4,1,4.0,4,2,6," +
           // errors are exported as blanks
           ",,,"
       }
     }
     "JSON serialization works" in {
       withCleanup { (p) =>
-        val json = new String(Files.readAllBytes(JSON.write(p, new TestMetrics()))).parseJson
-        json.asJsObject.fields("NumArray") mustEqual JsArray(Vector(1, 2, 3).map(v => JsNumber(v)))
-        json.asJsObject.fields("NumArrayFunc") mustEqual JsArray(Vector(2, 3, 4).map(v => JsNumber(v)))
-        json.asJsObject.fields.contains("IntArrayError") mustEqual false
-        // "NumArray,NumArrayFunc
+        val json = new String(Files.readAllBytes(JSON.write(p, new TestMetrics()))).parseJson.asJsObject
+        // arrays aren't serialized in CSV. check they appear in the JSON
+        json.fields("NumArray") mustEqual JsArray(Vector(1, 2, 3).map(v => JsNumber(v)))
+        json.fields("NumArrayFunc") mustEqual JsArray(Vector(2, 3, 4).map(v => JsNumber(v)))
+        // errors are dropped from the JSON. check the known errors are missing
+        json.fields.contains("IntArrayError") mustEqual false
+        // distributions should appear as objects with calculated bins
+        json.fields("DistContinuous") mustEqual JsObject(List(
+          ("Samples", JsNumber(3)),
+          ("Bins", JsNumber(3)),
+          ("BinWidth", JsNumber(0.33333334)),
+          ("Mean", JsNumber(0.5)),
+          ("Median", JsNumber(0.5)),
+          ("Min", JsNumber(0.0)),
+          ("Max", JsNumber(1.0)),
+          ("Bins", JsArray(Vector(1, 1, 1).map(v => JsNumber(v))))
+        ): _*)
+        json.fields("DistDiscrete") mustEqual JsObject(List(
+          ("Samples", JsNumber(3)),
+          ("Bins", JsNumber(4)),
+          ("BinWidth", JsNumber(1)),
+          ("Mean", JsNumber(4)),
+          ("Median", JsNumber(4)),
+          ("Min", JsNumber(2)),
+          ("Max", JsNumber(6)),
+          ("Bins", JsArray(Vector(1, 0, 1, 1).map(v => JsNumber(v))))
+        ): _*)
       }
     }
   }
@@ -75,8 +98,8 @@ class TestMetrics() extends Metrics {
     Num("NumIntFunc", () => 3),
     Num("NumFloatFunc", () => 1.2),
     Bool("Boolean", () => true),
-    Dist("DistContinuous", calcContinuousDist(Seq(1f, 2f, 1.5f), nBins = 2, sort = true)),
-    Dist("DistDiscrete", calcDiscreteDist(Seq(2, 4, 6), nBins = 2, sort = true)),
+    Dist("DistContinuous", calcContinuousDist(Seq(0f, 1f, 0.5f), nBins = 3, sort = true)),
+    Dist("DistDiscrete", calcDiscreteDist(Seq(2, 4, 6), nBins = 4, sort = true)),
     NumArray("NumArray", Seq(1, 2, 3)),
     NumArray("NumArrayFunc", () => Seq(2, 3, 4)),
     // errors
