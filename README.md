@@ -21,6 +21,12 @@ This is an API. It doesn't run on its own other than to provide tests and covera
 ```
 # Build a JAR
 sbt clean coverage test coverageReport
+
+... 
+[info] Statement coverage.: 100.00%
+[info] Branch coverage....: 100.00%
+[info] Coverage reports completed
+[info] All done. Coverage was [100.00%]
 ```
 
 See [TestMetrics in MetricsSpec.scala](src/test/scala/falkner/jayson/metrics/MetricsSpec.scala)
