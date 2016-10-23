@@ -19,7 +19,7 @@ object Distribution {
       Discrete(
         vals.size,
         nBins,
-        max / nBins,
+        (max - min) / nBins,
         vals.sum.toFloat / vals.size,
         vals(vals.size / 2),
         min,
@@ -36,7 +36,7 @@ object Distribution {
       Continuous(
         vals.size,
         nBins,
-        max - min / nBins,
+        (max - min) / nBins,
         vals.sum / vals.size,
         vals(vals.size / 2),
         min,
@@ -45,36 +45,36 @@ object Distribution {
       )
   }
 
-  def print(title: String, d: Continuous): Unit = {
-    println(s"$title: Continuous Distribution")
-    println(s"  Num Samples: ${d.sampleNum}")
-    println(s"  Num Bins: ${d.binNum}")
-    println(s"  Bin Width: ${d.binWidth}")
-    println(s"  Mean: ${d.mean}")
-    println(s"  Median: ${d.median}")
-    println(s"  Min: ${d.min}")
-    println(s"  Max: ${d.max}")
-  }
-
-  def print(title: String, d: Discrete): Unit = {
-    println(s"$title: Discrete Distribution")
-    println(s"  Num Samples: ${d.sampleNum}")
-    println(s"  Num Bins: ${d.binNum}")
-    println(s"  Bin Width: ${d.binWidth}")
-    println(s"  Mean: ${d.mean}")
-    println(s"  Median: ${d.median}")
-    println(s"  Min: ${d.min}")
-    println(s"  Max: ${d.max}")
-  }
-
-  def printPercent(title: String, d: Continuous): Unit = {
-    println(s"$title: Continuous Distribution")
-    println(s"  Num Samples: ${d.sampleNum}")
-    println(s"  Num Bins: ${d.binNum}")
-    println(s"  Bin Width: ${d.binWidth}")
-    println(f"  Mean: ${d.mean * 100}%.2f%%")
-    println(f"  Median: ${d.median * 100}%.2f%%")
-    println(f"  Min: ${d.min * 100}%.2f%%")
-    println(f"  Max: ${d.max * 100}%.2f%%")
-  }
+//  def print(title: String, d: Continuous): Unit = {
+  //    println(s"$title: Continuous Distribution")
+  //    println(s"  Num Samples: ${d.sampleNum}")
+  //    println(s"  Num Bins: ${d.binNum}")
+  //    println(s"  Bin Width: ${d.binWidth}")
+  //    println(s"  Mean: ${d.mean}")
+  //    println(s"  Median: ${d.median}")
+  //    println(s"  Min: ${d.min}")
+  //    println(s"  Max: ${d.max}")
+  //  }
+  //
+  //  def print(title: String, d: Discrete): Unit = {
+  //    println(s"$title: Discrete Distribution")
+  //    println(s"  Num Samples: ${d.sampleNum}")
+  //    println(s"  Num Bins: ${d.binNum}")
+  //    println(s"  Bin Width: ${d.binWidth}")
+  //    println(s"  Mean: ${d.mean}")
+  //    println(s"  Median: ${d.median}")
+  //    println(s"  Min: ${d.min}")
+  //    println(s"  Max: ${d.max}")
+  //  }
+  //
+  //  def printPercent(title: String, d: Continuous): Unit = {
+  //    println(s"$title: Continuous Distribution")
+  //    println(s"  Num Samples: ${d.sampleNum}")
+  //    println(s"  Num Bins: ${d.binNum}")
+  //    println(s"  Bin Width: ${d.binWidth}")
+  //    println(f"  Mean: ${d.mean * 100}%.2f%%")
+  //    println(f"  Median: ${d.median * 100}%.2f%%")
+  //    println(f"  Min: ${d.min * 100}%.2f%%")
+  //    println(f"  Max: ${d.max * 100}%.2f%%")
+  //  }
 }
