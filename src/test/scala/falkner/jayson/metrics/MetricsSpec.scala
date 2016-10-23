@@ -90,7 +90,7 @@ class MetricsSpec extends Specification {
 
 class TestMetrics() extends Metrics {
   override lazy val values: List[Metric] = List(
-    Str("String", () => "Bar"),
+    Str("String", "Bar"),
     Num("NumExact", "0.1"),
     Num("NumInt", 3),
     Num("NumFloat", 0.5f),

@@ -13,15 +13,19 @@ package object metrics {
   abstract case class Num(name: String) extends Metric {
     val value: () => String
   }
+
   abstract case class NumArray(name: String) extends Metric {
     val values: () => Seq[AnyVal]
   }
+
   abstract case class Str(name: String) extends Metric {
     val value: () => String
   }
+
   abstract case class Bool(name: String) extends Metric {
     val value: () => Boolean
   }
+
   case class Dist(name: String, samples: Num, binNum: Num, binWidth: Num, mean: Num, median: Num, min: Num, max: Num, bins: NumArray) extends Metric {
     val metrics: List[Metric] = List(
       samples,
@@ -38,7 +42,7 @@ package object metrics {
 
   object Num {
     def apply(name: String, f: () => Any): Metric = new Num(name) {
-        val value = () => f().toString
+      val value = () => f().toString
     }
 
     def apply(name: String, v: Int): Num = new Num(name) {
@@ -66,14 +70,18 @@ package object metrics {
 
   object Str {
     def apply(n: String, f: () => String): Str = new Str(n) {
-        override val value = f
-      }
+      override val value = f
+    }
+
+    def apply(n: String, s: String): Str = new Str(n) {
+      override val value = () => s
+    }
   }
 
   object Bool {
     def apply(n: String, f: () => Boolean): Bool = new Bool(n) {
-        override val value = f
-      }
+      override val value = f
+    }
   }
 
   object Dist {
@@ -99,4 +107,5 @@ package object metrics {
       Num("Max", d.max),
       NumArray("Bins", d.bins))
   }
+
 }
