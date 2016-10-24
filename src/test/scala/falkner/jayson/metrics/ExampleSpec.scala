@@ -6,7 +6,7 @@ import falkner.jayson.metrics.io.{CSV, JSON}
 import org.specs2.matcher.MatchResult
 import org.specs2.mutable.Specification
 import collection.JavaConverters._
-import falkner.jayson.metrics.Distribution.calcContinuousDist
+import falkner.jayson.metrics.Distribution.calcContinuous
 
 
 /**
@@ -21,7 +21,7 @@ class ExampleSpec extends Specification {
     override lazy val values: List[Metric] = List(
       Str("Name", calcName),
       Num("Age", calcAge),
-      Dist("Data", calcContinuousDist(Seq(0f, 1f, 0.5f), nBins = 3, sort = true)),
+      Dist("Data", calcContinuous(Seq(0f, 1f, 0.5f), nBins = 3, sort = true)),
       Num("Borken", willThrowError)
     )
 

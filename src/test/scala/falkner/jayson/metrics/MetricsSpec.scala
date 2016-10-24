@@ -98,8 +98,8 @@ class TestMetrics() extends Metrics {
     Num("NumIntFunc", () => 3),
     Num("NumFloatFunc", () => 1.2),
     Bool("Boolean", () => true),
-    Dist("DistContinuous", calcContinuousDist(Seq(0f, 1f, 0.5f), nBins = 3, sort = true)),
-    Dist("DistDiscrete", calcDiscreteDist(Seq(2, 4, 6), nBins = 4, sort = true)),
+    Dist("DistContinuous", calcContinuous(Seq(0f, 1f, 0.5f), nBins = 3, sort = true)),
+    Dist("DistDiscrete", calcDiscrete(Seq(2, 4, 6), nBins = 4, sort = true)),
     NumArray("NumArray", Seq(1, 2, 3)),
     NumArray("NumArrayFunc", () => Seq(2, 3, 4)),
     // errors

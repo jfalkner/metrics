@@ -39,6 +39,8 @@ package object metrics {
     )
   }
 
+  case class CatDist(name: String, samples: Int, bins: Map[String, AnyVal]) extends Metric
+
 
   object Num {
     def apply(name: String, f: () => Any): Metric = new Num(name) {
@@ -106,6 +108,10 @@ package object metrics {
       Num("Min", d.min),
       Num("Max", d.max),
       NumArray("Bins", d.bins))
+  }
+
+  object CatDist {
+    def apply(name: String, d:Distribution.Categorical) = new CatDist(name, d.sampleNum, d.bins)
   }
 
 }

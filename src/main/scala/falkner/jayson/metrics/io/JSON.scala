@@ -27,6 +27,18 @@ object JSON {
     case s: Str => noneIfError[JsString](() => (s.name, JsString(s.value())))
     case b: Bool => noneIfError[JsBoolean](() => (b.name, JsBoolean(b.value())))
     case n: NumArray => noneIfError[JsArray](() => (n.name, JsArray(n.values().asInstanceOf[Seq[Int]].map(m => JsNumber(m)).toVector)))
+    // flatten out categorical distributions and keep key order
+    case cd: CatDist => noneIfError[JsObject](() =>
+      (cd.name, JsObject(
+        List(("Name", JsString(cd.name)), ("Samples", JsNumber(cd.samples))) ++
+          cd.bins.keys.map(k => cd.bins(k) match {
+            case s: Short => (k, JsNumber(s))
+            case i: Int => (k, JsNumber(i))
+            case l: Long => (k, JsNumber(l))
+            case f: Float => (k, JsNumber(f))
+            case d: Double => (k, JsNumber(d))
+          }): _*))
+    )
   })
 
   def noneIfError[A](f: () => (String, A)): Option[(String, A)] = Try(f()) match {
