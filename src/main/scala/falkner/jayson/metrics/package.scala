@@ -8,6 +8,21 @@ package object metrics {
 
   trait Metrics {
     val values: List[Metric]
+
+    def metric(name: String): Metric = values.filter(_.name == name).head
+
+    def asString(name: String): String = metric(name) match {
+      case n: Num => n.value()
+      case s: Str => s.value()
+    }
+
+    def asBoolean(name: String): Boolean = metric(name) match {
+      case b: Bool => b.value()
+    }
+
+    def asSeqInt(name: String): Seq[Int] = metric(name) match {
+      case n: NumArray => n.values().asInstanceOf[Seq[Int]]
+    }
   }
 
   abstract case class Num(name: String) extends Metric {
