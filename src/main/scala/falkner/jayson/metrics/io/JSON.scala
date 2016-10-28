@@ -22,13 +22,13 @@ object JSON {
   def write(out: Path, ml: Metrics): Path = Files.write(out, JsObject(export(ml.values): _*).prettyPrint.getBytes)
 
   def export(o: List[Metric]): List[(String, JsValue)] = o.flatMap(_ match {
-    case d: Dist => noneIfError[JsObject](() => (d.name, JsObject(export(d.metrics): _*)))
-    case n: Num => noneIfError[JsNumber](() => (n.name, JsNumber(n.value())))
-    case s: Str => noneIfError[JsString](() => (s.name, JsString(s.value())))
-    case b: Bool => noneIfError[JsBoolean](() => (b.name, JsBoolean(b.value())))
-    case n: NumArray => noneIfError[JsArray](() => (n.name, JsArray(n.values().asInstanceOf[Seq[Int]].map(m => JsNumber(m)).toVector)))
+    case d: Dist => noneIfError[JsObject]((d.name, JsObject(export(d.metrics): _*)))
+    case n: Num => noneIfError[JsNumber]((n.name, JsNumber(n.value)))
+    case s: Str => noneIfError[JsString]((s.name, JsString(s.value)))
+    case b: Bool => noneIfError[JsBoolean]((b.name, JsBoolean(b.value)))
+    case n: NumArray => noneIfError[JsArray]((n.name, JsArray(n.values.asInstanceOf[Seq[Int]].map(m => JsNumber(m)).toVector)))
     // flatten out categorical distributions and keep key order
-    case cd: CatDist => noneIfError[JsObject](() =>
+    case cd: CatDist => noneIfError[JsObject](
       (cd.name, JsObject(
         List(("Name", JsString(cd.name)), ("Samples", JsNumber(cd.samples))) ++
           cd.bins.keys.map(k => cd.bins(k) match {
@@ -41,7 +41,7 @@ object JSON {
     )
   })
 
-  def noneIfError[A](f: () => (String, A)): Option[(String, A)] = Try(f()) match {
+  def noneIfError[A](f: => (String, A)): Option[(String, A)] = Try(f) match {
     case Success(s) => Some(s)
     case Failure(t) => None
   }

@@ -1,5 +1,7 @@
 package falkner.jayson
 
+import scala.util.{Failure, Success, Try}
+
 package object metrics {
 
   trait Metric {
@@ -7,38 +9,40 @@ package object metrics {
   }
 
   trait Metrics {
+    val namespace: String
+    val version: String
     val values: List[Metric]
 
     def metric(name: String): Metric = values.filter(_.name == name).head
 
     def asString(name: String): String = metric(name) match {
-      case n: Num => n.value()
-      case s: Str => s.value()
+      case n: Num => n.value
+      case s: Str => s.value
     }
 
     def asBoolean(name: String): Boolean = metric(name) match {
-      case b: Bool => b.value()
+      case b: Bool => b.value
     }
 
     def asSeqInt(name: String): Seq[Int] = metric(name) match {
-      case n: NumArray => n.values().asInstanceOf[Seq[Int]]
+      case n: NumArray => n.values.asInstanceOf[Seq[Int]]
     }
   }
 
-  abstract case class Num(name: String) extends Metric {
-    val value: () => String
+  class Num(val name: String, callByValue: => String) extends Metric {
+    def value = callByValue
   }
 
-  abstract case class NumArray(name: String) extends Metric {
-    val values: () => Seq[AnyVal]
+  class NumArray(val name: String, callByValues: => Seq[AnyVal]) extends Metric {
+    def values = callByValues
   }
 
-  abstract case class Str(name: String) extends Metric {
-    val value: () => String
+  class Str(val name: String, callByValue: => String) extends Metric {
+    lazy val value = callByValue
   }
 
-  abstract case class Bool(name: String) extends Metric {
-    val value: () => Boolean
+  class Bool(val name: String, callByValue: => Boolean) extends Metric {
+    lazy val value = callByValue
   }
 
   case class Dist(name: String, samples: Num, binNum: Num, binWidth: Num, mean: Num, median: Num, min: Num, max: Num, bins: NumArray) extends Metric {
@@ -54,79 +58,92 @@ package object metrics {
     )
   }
 
-  case class CatDist(name: String, samples: Int, bins: Map[String, AnyVal]) extends Metric
-
+  class CatDist(val name: String, val samples: Int, val bins: Map[String, AnyVal]) extends Metric
 
   object Num {
-    def apply(name: String, f: () => Any): Metric = new Num(name) {
-      val value = () => f().toString
-    }
-
-    def apply(name: String, v: Int): Num = new Num(name) {
-      val value = () => v.toString
-    }
-
-    def apply(name: String, v: Float): Num = new Num(name) {
-      val value = () => v.toString
-    }
-
-    def apply(name: String, v: String): Num = new Num(name) {
-      val value = () => v
-    }
+    def apply(name: String, value: => Any): Num = new Num(name, value.toString)
   }
 
   object NumArray {
-    def apply(name: String, f: () => Seq[Int]): NumArray = new NumArray(name) {
-      override val values = f
-    }
-
-    def apply(name: String, v: Seq[Int]): NumArray = new NumArray(name) {
-      override val values = () => v
-    }
+    def apply(name: String, value: => Seq[Int]): NumArray = new NumArray(name, value)
   }
 
   object Str {
-    def apply(n: String, f: () => String): Str = new Str(n) {
-      override val value = f
-    }
-
-    def apply(n: String, s: String): Str = new Str(n) {
-      override val value = () => s
-    }
+    def apply(name: String, value: => String): Str = new Str(name, value)
   }
 
   object Bool {
-    def apply(n: String, f: () => Boolean): Bool = new Bool(n) {
-      override val value = f
-    }
+    def apply(name: String, value: => Boolean): Bool = new Bool(name, value)
   }
 
   object Dist {
-    def apply(name: String, d: Distribution.Discrete) = new Dist(
-      name,
-      Num("Samples", d.sampleNum),
-      Num("Bins", d.binNum),
-      Num("BinWidth", d.binWidth),
-      Num("Mean", d.mean),
-      Num("Median", d.median),
-      Num("Min", d.min),
-      Num("Max", d.max),
-      NumArray("Bins", d.bins))
+    def apply(name: String, d: => Distribution.Discrete) = Try {
+      new Dist(
+        name,
+        Num("Samples", d.sampleNum),
+        Num("Bins", d.binNum),
+        Num("BinWidth", d.binWidth),
+        Num("Mean", d.mean),
+        Num("Median", d.median),
+        Num("Min", d.min),
+        Num("Max", d.max),
+        NumArray("Bins", d.bins))
+    } match {
+      case Success(d) => d
+      // supports auto-calc of blank/place holder values -- TODO: restrict this to NullPointerException and bubble up rest?
+      case Failure(_) =>
+        new Dist(
+          name,
+          Num("Samples", ""),
+          Num("Bins", ""),
+          Num("BinWidth", ""),
+          Num("Mean", ""),
+          Num("Median", ""),
+          Num("Min", ""),
+          Num("Max", ""),
+          NumArray("Bins", Seq()))
+    }
+  }
 
-    def apply(name: String, d: Distribution.Continuous) = new Dist(
-      name,
-      Num("Samples", d.sampleNum),
-      Num("Bins", d.binNum),
-      Num("BinWidth", d.binWidth),
-      Num("Mean", d.mean),
-      Num("Median", d.median),
-      Num("Min", d.min),
-      Num("Max", d.max),
-      NumArray("Bins", d.bins))
+  object DistCon {
+
+    def apply(name: String, d: => Distribution.Continuous) = Try {
+      new Dist(
+        name,
+        Num("Samples", d.sampleNum),
+        Num("Bins", d.binNum),
+        Num("BinWidth", d.binWidth),
+        Num("Mean", d.mean),
+        Num("Median", d.median),
+        Num("Min", d.min),
+        Num("Max", d.max),
+        NumArray("Bins", d.bins))
+    } match {
+      case Success(d) => d
+      // supports auto-calc of blank/place holder values -- TODO: restrict this to NullPointerException and bubble up rest?
+      case Failure(_) =>
+        new Dist(
+          name,
+          Num("Samples", ""),
+          Num("Bins", ""),
+          Num("BinWidth", ""),
+          Num("Mean", ""),
+          Num("Median", ""),
+          Num("Min", ""),
+          Num("Max", ""),
+          NumArray("Bins", Seq()))
+    }
   }
 
   object CatDist {
-    def apply(name: String, d:Distribution.Categorical) = new CatDist(name, d.sampleNum, d.bins)
-  }
+    def apply(name: String, d: => Distribution.Categorical) = Try (new CatDist(name, d.sampleNum, d.bins)) match {
+      case Success(d) => d
+      case Failure(_) => new CatDist(name, 0, Map())
+    }
 
+    def apply(name: String, sampleNum: => Int, bins: => Map[String, AnyVal]) = Try (new CatDist(name, sampleNum, bins)) match {
+      case Success(d) => d
+      case Failure(_) => new CatDist(name, 0, Map())
+    }
+  }
 }

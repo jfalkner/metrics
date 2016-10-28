@@ -74,3 +74,11 @@ JSON.export("example.json", new Example())
   }
 }
 ```
+
+## Versioning and Caching
+
+TODO: note the conventions used for versioning, conversion and caching.
+
+- version for the specific code~file version
+- apply() conversion to latest format -- if possible
+- blank and currentVersion for placeholders

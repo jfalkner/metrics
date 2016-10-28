@@ -26,14 +26,15 @@ class MetricsSpec extends Specification {
   "Metrics" should {
     "CSV serialization works" in {
       withCleanup { (p) =>
-        val lines = Files.readAllLines(CSV.write(p, new TestMetrics()))
+        val lines = Files.readAllLines(CSV(p, new TestMetrics()))
         lines.size mustEqual 2
-        lines.get(0) mustEqual "String," +
-          "NumExact,NumInt,NumFloat,NumExactFunc,NumIntFunc,NumFloatFunc," +
-          "Boolean," +
-          "DistContinuous: Samples,DistContinuous: Bins,DistContinuous: BinWidth,DistContinuous: Mean,DistContinuous: Median,DistContinuous: Min,DistContinuous: Max," +
-          "DistDiscrete: Samples,DistDiscrete: Bins,DistDiscrete: BinWidth,DistDiscrete: Mean,DistDiscrete: Median,DistDiscrete: Min,DistDiscrete: Max," +
-          "StringError,IntError,FloatError,BooleanError"
+        lines.get(0) mustEqual
+          List("String",
+          "NumExact" , "NumInt", "NumFloat", "NumExactFunc", "NumIntFunc", "NumFloatFunc",
+          "Boolean",
+          "DistContinuous: Samples", "DistContinuous: Bins", "DistContinuous: BinWidth", "DistContinuous: Mean", "DistContinuous: Median", "DistContinuous: Min", "DistContinuous: Max",
+          "DistDiscrete: Samples", "DistDiscrete: Bins", "DistDiscrete: BinWidth", "DistDiscrete: Mean", "DistDiscrete: Median", "DistDiscrete: Min", "DistDiscrete: Max",
+          "StringError", "IntError", "FloatError", "BooleanError").map(s => s"Test: $s").mkString(",")
         lines.get(1) mustEqual "Bar," +
           "0.1,3,0.5,0.1,3,1.2," +
           "true," +
@@ -89,32 +90,27 @@ class MetricsSpec extends Specification {
 }
 
 class TestMetrics() extends Metrics {
+  override val namespace = "Test"
+  override val version = "_"
   override lazy val values: List[Metric] = List(
     Str("String", "Bar"),
     Num("NumExact", "0.1"),
     Num("NumInt", 3),
     Num("NumFloat", 0.5f),
-    Num("NumExactFunc", () => "0.1"),
-    Num("NumIntFunc", () => 3),
-    Num("NumFloatFunc", () => 1.2),
-    Bool("Boolean", () => true),
-    Dist("DistContinuous", calcContinuous(Seq(0f, 1f, 0.5f), nBins = 3, sort = true)),
+    Num("NumExactFunc", "0.1"),
+    Num("NumIntFunc", 3),
+    Num("NumFloatFunc", 1.2),
+    Bool("Boolean", true),
+    DistCon("DistContinuous", calcContinuous(Seq(0f, 1f, 0.5f), nBins = 3, sort = true)),
     Dist("DistDiscrete", calcDiscrete(Seq(2, 4, 6), nBins = 4, sort = true)),
     NumArray("NumArray", Seq(1, 2, 3)),
-    NumArray("NumArrayFunc", () => Seq(2, 3, 4)),
+    NumArray("NumArrayFunc", Seq(2, 3, 4)),
     // errors
-    Str("StringError", errorString),
-    Num("IntError", errorInt),
-    Num("FloatError", errorFloat),
-    Bool("BooleanError", errorBoolean),
-    NumArray("IntArrayError", errorNumArray)
+    Str("StringError",throw new Exception("Test Error")),
+    Num("IntError", throw new Exception("Test Error")),
+    Num("FloatError", throw new Exception("Test Error")),
+    Bool("BooleanError", throw new Exception("Test Error")),
+    NumArray("IntArrayError", throw new Exception("Test Error"))
   )
-
-  def error[A]: () => A = () => throw new Exception("Test Error")
-  val errorBoolean = error[Boolean]
-  val errorInt = error[Int]
-  val errorFloat = error[Float]
-  val errorString = error[String]
-  val errorNumArray = error[Seq[Int]]
 }
 

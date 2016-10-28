@@ -18,23 +18,21 @@ import falkner.jayson.metrics.Distribution.calcContinuous
 class ExampleSpec extends Specification {
 
   class Example extends Metrics {
+    override val namespace = "Example"
+    override val version = "_"
     override lazy val values: List[Metric] = List(
-      Str("Name", calcName),
-      Num("Age", calcAge),
-      Dist("Data", calcContinuous(Seq(0f, 1f, 0.5f), nBins = 3, sort = true)),
-      Num("Borken", willThrowError)
+      Str("Name", "Data Scientist"),
+      Num("Age", "123"),
+      DistCon("Data", calcContinuous(Seq(0f, 1f, 0.5f), nBins = 3, sort = true)),
+      Num("Borken", throw new Exception("Calculation failed!"))
     )
-
-    val willThrowError = () => throw new Exception("Calculation failed!")
-    val calcName = () => "Data Scientist"
-    val calcAge = () => "21"
   }
 
   "README.md example" should {
     "CSV export" in {
       withCleanup { (p) =>
         println("README.md Example CSV Export")
-        Files.readAllLines(CSV.write(p, new Example())).asScala.foreach(println)
+        Files.readAllLines(CSV(p, new Example())).asScala.foreach(println)
         1 mustEqual 1
       }
     }
