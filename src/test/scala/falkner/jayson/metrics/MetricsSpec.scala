@@ -8,6 +8,8 @@ import spray.json._
 import falkner.jayson.metrics.io.{CSV, JSON}
 import org.specs2.matcher.MatchResult
 
+import scala.collection.immutable.ListMap
+
 /**
   * Specs2 Tests: https://etorreborre.github.io/specs2/
   *
@@ -34,6 +36,7 @@ class MetricsSpec extends Specification {
           "Boolean",
           "DistContinuous: Samples", "DistContinuous: Bins", "DistContinuous: BinWidth", "DistContinuous: Mean", "DistContinuous: Median", "DistContinuous: Min", "DistContinuous: Max",
           "DistDiscrete: Samples", "DistDiscrete: Bins", "DistDiscrete: BinWidth", "DistDiscrete: Mean", "DistDiscrete: Median", "DistDiscrete: Min", "DistDiscrete: Max",
+          "CatDist: Name", "CatDist: Samples", "CatDist: A", "CatDist: C", "CatDist: G", "CatDist: T",
           "StringError", "IntError", "FloatError", "BooleanError").map(s => s"Test: $s").mkString(",")
         lines.get(1) mustEqual "Bar," +
           "0.1,3,0.5,0.1,3,1.2," +
@@ -41,6 +44,8 @@ class MetricsSpec extends Specification {
           // continuous and discrete dist
           "3,3,0.33333334,0.5,0.5,0.0,1.0," +
           "3,4,1,4.0,4,2,6," +
+          // categorical distribution
+          "CatDist,10,1,3,2,4," +
           // errors are exported as blanks
           ",,,"
       }
@@ -105,6 +110,7 @@ class TestMetrics() extends Metrics {
     Dist("DistDiscrete", calcDiscrete(Seq(2, 4, 6), nBins = 4, sort = true)),
     NumArray("NumArray", Seq(1, 2, 3)),
     NumArray("NumArrayFunc", Seq(2, 3, 4)),
+    CatDist("CatDist", makeCategorical(ListMap(("A", 1), ("C", 3), ("G", 2), ("T", 4)))),
     // errors
     Str("StringError",throw new Exception("Test Error")),
     Num("IntError", throw new Exception("Test Error")),
