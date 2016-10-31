@@ -36,7 +36,7 @@ class MetricsSpec extends Specification {
           "Boolean",
           "DistContinuous: Samples", "DistContinuous: Bins", "DistContinuous: BinWidth", "DistContinuous: Mean", "DistContinuous: Median", "DistContinuous: Min", "DistContinuous: Max",
           "DistDiscrete: Samples", "DistDiscrete: Bins", "DistDiscrete: BinWidth", "DistDiscrete: Mean", "DistDiscrete: Median", "DistDiscrete: Min", "DistDiscrete: Max",
-          "CatDist: Name", "CatDist: Samples", "CatDist: A", "CatDist: C", "CatDist: G", "CatDist: T",
+          "CatDist: Samples", "CatDist: A", "CatDist: C", "CatDist: G", "CatDist: T",
           "StringError", "IntError", "FloatError", "BooleanError").map(s => s"Test: $s").mkString(",")
         lines.get(1) mustEqual "Bar," +
           "0.1,3,0.5,0.1,3,1.2," +
@@ -45,7 +45,7 @@ class MetricsSpec extends Specification {
           "3,3,0.33333334,0.5,0.5,0.0,1.0," +
           "3,4,1,4.0,4,2,6," +
           // categorical distribution
-          "CatDist,10,1,3,2,4," +
+          "10,1,3,2,4," +
           // errors are exported as blanks
           ",,,"
       }

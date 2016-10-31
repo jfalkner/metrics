@@ -106,37 +106,4 @@ object Distribution {
           yield if (i < nBins - 1) bins.getOrElse(i, 0) else bins.getOrElse(i, 0) + bins.getOrElse(i + 1, 0)
       )
   }
-
-//  def print(title: String, d: Continuous): Unit = {
-  //    println(s"$title: Continuous Distribution")
-  //    println(s"  Num Samples: ${d.sampleNum}")
-  //    println(s"  Num Bins: ${d.binNum}")
-  //    println(s"  Bin Width: ${d.binWidth}")
-  //    println(s"  Mean: ${d.mean}")
-  //    println(s"  Median: ${d.median}")
-  //    println(s"  Min: ${d.min}")
-  //    println(s"  Max: ${d.max}")
-  //  }
-  //
-  //  def print(title: String, d: Discrete): Unit = {
-  //    println(s"$title: Discrete Distribution")
-  //    println(s"  Num Samples: ${d.sampleNum}")
-  //    println(s"  Num Bins: ${d.binNum}")
-  //    println(s"  Bin Width: ${d.binWidth}")
-  //    println(s"  Mean: ${d.mean}")
-  //    println(s"  Median: ${d.median}")
-  //    println(s"  Min: ${d.min}")
-  //    println(s"  Max: ${d.max}")
-  //  }
-  //
-  //  def printPercent(title: String, d: Continuous): Unit = {
-  //    println(s"$title: Continuous Distribution")
-  //    println(s"  Num Samples: ${d.sampleNum}")
-  //    println(s"  Num Bins: ${d.binNum}")
-  //    println(s"  Bin Width: ${d.binWidth}")
-  //    println(f"  Mean: ${d.mean * 100}%.2f%%")
-  //    println(f"  Median: ${d.median * 100}%.2f%%")
-  //    println(f"  Min: ${d.min * 100}%.2f%%")
-  //    println(f"  Max: ${d.max * 100}%.2f%%")
-  //  }
 }

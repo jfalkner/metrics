@@ -65,7 +65,6 @@ package object metrics {
     override val namespace: String = ""
     override val version = ""
     override val values: List[Metric] = List(
-      Str("Name", name),
       Num("Samples", samples)
     ) ++ bins.keys.toList.map(k => Num(k, bins(k)))
   }
