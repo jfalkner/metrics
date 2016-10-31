@@ -61,12 +61,12 @@ package object metrics {
     )
   }
 
-  class CatDist(val name: String, val samples: Int, val bins: ListMap[String, AnyVal]) extends Metric with Metrics {
+  class CatDist(val name: String, val samples: Int, val bins: Map[String, AnyVal], val keys: List[String]) extends Metric with Metrics {
     override val namespace: String = ""
     override val version = ""
     override val values: List[Metric] = List(
       Num("Samples", samples)
-    ) ++ bins.keys.toList.map(k => Num(k, bins(k)))
+    ) ++ keys.map(k => Num(k, bins.getOrElse(k, "")))
   }
 
   object Num {
@@ -145,14 +145,14 @@ package object metrics {
   }
 
   object CatDist {
-    def apply(name: String, d: => Distribution.Categorical) = Try (new CatDist(name, d.sampleNum, d.bins)) match {
+    def apply(name: String, d: => Distribution.Categorical) = Try (new CatDist(name, d.sampleNum, d.bins, d.keys)) match {
       case Success(d) => d
-      case Failure(_) => new CatDist(name, 0, ListMap())
+      case Failure(_) => new CatDist(name, 0, ListMap(d.keys.map(k => (k, 0)) :_ *), d.keys)
     }
 
-    def apply(name: String, sampleNum: => Int, bins: => ListMap[String, AnyVal]) = Try (new CatDist(name, sampleNum, bins)) match {
+    def apply(name: String, sampleNum: => Int, bins: => Map[String, AnyVal], keys: => List[String]) = Try (new CatDist(name, sampleNum, bins, keys)) match {
       case Success(d) => d
-      case Failure(_) => new CatDist(name, 0, ListMap())
+      case Failure(_) => new CatDist(name, 0, Map(keys.map(k => (k, 0)) :_ *), keys)
     }
   }
 }

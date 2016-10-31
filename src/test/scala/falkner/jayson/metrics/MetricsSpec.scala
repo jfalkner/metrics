@@ -37,6 +37,7 @@ class MetricsSpec extends Specification {
           "DistContinuous: Samples", "DistContinuous: Bins", "DistContinuous: BinWidth", "DistContinuous: Mean", "DistContinuous: Median", "DistContinuous: Min", "DistContinuous: Max",
           "DistDiscrete: Samples", "DistDiscrete: Bins", "DistDiscrete: BinWidth", "DistDiscrete: Mean", "DistDiscrete: Median", "DistDiscrete: Min", "DistDiscrete: Max",
           "CatDist: Samples", "CatDist: A", "CatDist: C", "CatDist: G", "CatDist: T",
+          "CatError: Samples", "CatError: A", "CatError: C", "CatError: G", "CatError: T",
           "StringError", "IntError", "FloatError", "BooleanError").map(s => s"Test: $s").mkString(",")
         lines.get(1) mustEqual "Bar," +
           "0.1,3,0.5,0.1,3,1.2," +
@@ -46,6 +47,8 @@ class MetricsSpec extends Specification {
           "3,4,1,4.0,4,2,6," +
           // categorical distribution
           "10,1,3,2,4," +
+          // categorical distribution showing cols even with error
+          "0,0,0,0,0," +
           // errors are exported as blanks
           ",,,"
       }
@@ -110,7 +113,8 @@ class TestMetrics() extends Metrics {
     Dist("DistDiscrete", calcDiscrete(Seq(2, 4, 6), nBins = 4, sort = true)),
     NumArray("NumArray", Seq(1, 2, 3)),
     NumArray("NumArrayFunc", Seq(2, 3, 4)),
-    CatDist("CatDist", makeCategorical(ListMap(("A", 1), ("C", 3), ("G", 2), ("T", 4)))),
+    CatDist("CatDist", makeCategorical(Map(("A", 1), ("C", 3), ("G", 2), ("T", 4)), List("A", "C", "G", "T"))),
+    CatDist("CatError", 0, throw new Exception("Test Error"), List("A", "C", "G", "T")),
     // errors
     Str("StringError",throw new Exception("Test Error")),
     Num("IntError", throw new Exception("Test Error")),
