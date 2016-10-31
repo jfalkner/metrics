@@ -145,12 +145,12 @@ package object metrics {
   }
 
   object CatDist {
-    def apply(name: String, d: => Distribution.Categorical) = Try (new CatDist(name, d.sampleNum, d.bins, d.keys)) match {
+    def apply(name: String, d: => Distribution.Categorical, keys: List[String]) = Try (new CatDist(name, d.sampleNum, d.bins, keys)) match {
       case Success(d) => d
-      case Failure(_) => new CatDist(name, 0, ListMap(d.keys.map(k => (k, 0)) :_ *), d.keys)
+      case Failure(_) => new CatDist(name, 0, ListMap(keys.map(k => (k, 0)) :_ *), keys)
     }
 
-    def apply(name: String, sampleNum: => Int, bins: => Map[String, AnyVal], keys: => List[String]) = Try (new CatDist(name, sampleNum, bins, keys)) match {
+    def apply(name: String, sampleNum: => Int, bins: => Map[String, AnyVal], keys: List[String]) = Try (new CatDist(name, sampleNum, bins, keys)) match {
       case Success(d) => d
       case Failure(_) => new CatDist(name, 0, Map(keys.map(k => (k, 0)) :_ *), keys)
     }

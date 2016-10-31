@@ -14,12 +14,12 @@ object Distribution {
 
   case class Discrete(sampleNum: Int, binNum: Int, binWidth: Int, mean: Float, median: Int, min: Int, max: Int, bins: Seq[Int])
 
-  case class Categorical(sampleNum: Int, bins: Map[String, AnyVal], keys: List[String])
+  case class Categorical(sampleNum: Int, bins: Map[String, AnyVal])
 
-  def makeCategorical(vals: Map[String, Int], keys: List[String]): Categorical = Categorical(vals.values.sum, vals, keys)
+  def makeCategorical(vals: Map[String, Int]): Categorical = Categorical(vals.values.sum, vals)
 
-  def calcCategorical(vals: Map[String, Traversable[Any]], keys: List[String]): Categorical =
-    Categorical(vals.values.map(_.size).sum, keys.map(k => (k, vals.getOrElse(k, Nil).size)).toMap, keys)
+  def calcCategorical(vals: Map[String, Traversable[Any]]): Categorical =
+    Categorical(vals.values.map(_.size).sum, vals.map{ case (k, v) => (k, v.size) })
 
   //def calcShort(vals: Seq[Short], nBins: Int = 30, sort: Boolean = true): Discrete = calcDiscrete(vals.map(_.toInt), nBins, sort)
 
