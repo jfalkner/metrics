@@ -22,7 +22,7 @@ object JSON {
   def write(out: Path, ml: Metrics): Path = Files.write(out, JsObject(export(ml.values): _*).prettyPrint.getBytes)
 
   def export(o: List[Metric]): List[(String, JsValue)] = o.flatMap(_ match {
-    case d: Dist => noneIfError[JsObject]((d.name, JsObject(export(d.metrics): _*)))
+    case d: Dist => noneIfError[JsObject]((d.name, JsObject(export(d.values): _*)))
     case n: Num => noneIfError[JsNumber]((n.name, JsNumber(n.value)))
     case s: Str => noneIfError[JsString]((s.name, JsString(s.value)))
     case b: Bool => noneIfError[JsBoolean]((b.name, JsBoolean(b.value)))

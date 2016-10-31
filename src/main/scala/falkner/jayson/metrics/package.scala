@@ -1,5 +1,6 @@
 package falkner.jayson
 
+import scala.collection.immutable.ListMap
 import scala.util.{Failure, Success, Try}
 
 package object metrics {
@@ -45,8 +46,10 @@ package object metrics {
     lazy val value = callByValue
   }
 
-  case class Dist(name: String, samples: Num, binNum: Num, binWidth: Num, mean: Num, median: Num, min: Num, max: Num, bins: NumArray) extends Metric {
-    val metrics: List[Metric] = List(
+  case class Dist(name: String, samples: Num, binNum: Num, binWidth: Num, mean: Num, median: Num, min: Num, max: Num, bins: NumArray) extends Metric with Metrics {
+    override val namespace: String = ""
+    override val version = ""
+    override val values: List[Metric] = List(
       samples,
       binNum,
       binWidth,
@@ -58,7 +61,14 @@ package object metrics {
     )
   }
 
-  class CatDist(val name: String, val samples: Int, val bins: Map[String, AnyVal]) extends Metric
+  class CatDist(val name: String, val samples: Int, val bins: ListMap[String, AnyVal]) extends Metric with Metrics {
+    override val namespace: String = ""
+    override val version = ""
+    override val values: List[Metric] = List(
+      Str("Name", name),
+      Num("Samples", samples)
+    ) ++ bins.keys.toList.map(k => Num(k, bins(k)))
+  }
 
   object Num {
     def apply(name: String, value: => Any): Num = new Num(name, value.toString)
@@ -138,12 +148,12 @@ package object metrics {
   object CatDist {
     def apply(name: String, d: => Distribution.Categorical) = Try (new CatDist(name, d.sampleNum, d.bins)) match {
       case Success(d) => d
-      case Failure(_) => new CatDist(name, 0, Map())
+      case Failure(_) => new CatDist(name, 0, ListMap())
     }
 
-    def apply(name: String, sampleNum: => Int, bins: => Map[String, AnyVal]) = Try (new CatDist(name, sampleNum, bins)) match {
+    def apply(name: String, sampleNum: => Int, bins: => ListMap[String, AnyVal]) = Try (new CatDist(name, sampleNum, bins)) match {
       case Success(d) => d
-      case Failure(_) => new CatDist(name, 0, Map())
+      case Failure(_) => new CatDist(name, 0, ListMap())
     }
   }
 }
