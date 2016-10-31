@@ -54,7 +54,7 @@ object CSV {
     Seq(ml).map(_.values.flatMap(m => export(m)).unzip).map(u => Chunk(ml.namespace, u._1, u._2.map(escape))).head
 
   def export(m: Metric, prefix: String = ""): List[(String, String)] = m match {
-    case d: Dist => d.metrics.flatMap(m => export(m, d.name + ": "))
+    case d: Metrics => d.values.flatMap(v => export(v, d.name + ": "))
     case n: Num => List((s"$prefix${n.name}", blankIfError(n.value)))
     case s: Str => List((s"$prefix${s.name}", blankIfError(s.value)))
     case b: Bool => List((s"$prefix${b.name}", blankIfError(b.value.toString)))

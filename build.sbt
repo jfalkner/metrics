@@ -1,6 +1,6 @@
 name := "Metrics"
 
-version in ThisBuild := "0.1.1"
+version in ThisBuild := "0.1.2"
 
 organization in ThisBuild := "falkner.jayson"
 
