@@ -38,7 +38,9 @@ object CSV {
 
   def apply(ns: String, lines: Seq[String]): Chunk = Chunk(ns, lines(0).split(","), lines(1).split(","))
 
-  def apply(lines: Seq[String]): Chunk = Chunk(lines(0).split(":")(0), lines(0).split(",").map(_.split(": ").tail.mkString(": ")), lines(1).split(","))
+  def apply(lines: Seq[String]): Chunk = apply(lines, 1)
+
+  def apply(lines: Seq[String], row: Int): Chunk = Chunk(lines(0).split(":")(0), lines(0).split(",").map(_.split(": ").tail.mkString(": ")), lines(row).split(","))
 
   def merge(mls: Chunk*): Merged = Merged(mls)
 

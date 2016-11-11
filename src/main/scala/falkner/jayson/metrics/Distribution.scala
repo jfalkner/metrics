@@ -1,6 +1,5 @@
 package falkner.jayson.metrics
 
-import scala.collection.immutable.ListMap
 import scala.util.Sorting.stableSort
 
 /**

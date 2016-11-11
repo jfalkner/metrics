@@ -113,7 +113,7 @@ class TestMetrics() extends Metrics {
     Dist("DistDiscrete", calcDiscrete(Seq(2, 4, 6), nBins = 4, sort = true)),
     NumArray("NumArray", Seq(1, 2, 3)),
     NumArray("NumArrayFunc", Seq(2, 3, 4)),
-    CatDist("CatDist", makeCategorical(Map(("A", 1), ("C", 3), ("G", 2), ("T", 4)), List("A", "C", "G", "T"))),
+    CatDist("CatDist", makeCategorical(Map(("A", 1), ("C", 3), ("G", 2), ("T", 4))), List("A", "C", "G", "T")),
     CatDist("CatError", 0, throw new Exception("Test Error"), List("A", "C", "G", "T")),
     // errors
     Str("StringError",throw new Exception("Test Error")),
