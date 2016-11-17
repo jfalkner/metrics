@@ -20,7 +20,18 @@ object Distribution {
   def calcCategorical(vals: Map[String, Traversable[Any]]): Categorical =
     Categorical(vals.values.map(_.size).sum, vals.map{ case (k, v) => (k, v.size) })
 
-  //def calcShort(vals: Seq[Short], nBins: Int = 30, sort: Boolean = true): Discrete = calcDiscrete(vals.map(_.toInt), nBins, sort)
+  def mean(vals: Seq[AnyVal]): Float = {
+    var bd = BigDecimal(0)
+    vals.foreach(_ match {
+      case v: Long => bd += v
+      case v: Int => bd += v
+      case v: Short => bd += v.toInt
+      case v: Float => bd += v.toDouble
+      case v: Double => bd += v
+    })
+    bd /= vals.size
+    bd.toFloat
+  }
 
   def calcDiscrete(vals: Seq[Int], nBins: Int = 30, sort: Boolean = true): Discrete = sort match {
     case true => calcDiscrete(vals.sorted, nBins, false)
@@ -33,7 +44,7 @@ object Distribution {
         vals.size,
         nBins,
         binWidth,
-        vals.sum.toFloat / vals.size,
+        mean(vals),
         vals(vals.size / 2),
         min,
         max,
@@ -55,7 +66,7 @@ object Distribution {
         vals.size,
         nBins,
         binWidth,
-        vals.sum.toFloat / vals.size,
+        mean(vals),
         vals(vals.size / 2),
         min,
         max,
@@ -75,7 +86,7 @@ object Distribution {
         vals.size,
         nBins,
         (max - min) / nBins,
-        vals.sum / vals.size,
+        mean(vals),
         vals(vals.size / 2),
         min,
         max,
@@ -97,7 +108,7 @@ object Distribution {
         vals.size,
         nBins,
         (max - min) / nBins,
-        vals.sum / vals.size,
+        mean(vals),
         vals(vals.size / 2),
         min,
         max,
