@@ -21,6 +21,10 @@ object JSON {
 
   def write(out: Path, ml: Metrics): Path = Files.write(out, JsObject(export(ml.values): _*).prettyPrint.getBytes)
 
+  def write(out: Path, mls: Seq[Metrics]): Path = Files.write(out, JsObject(mls.map(export): _*).prettyPrint.getBytes)
+
+  def export(o: Metrics): (String, JsValue) = (o.namespace, JsObject(export(o.values): _*))
+
   def export(o: List[Metric]): List[(String, JsValue)] = o.flatMap(_ match {
     case d: Metrics => noneIfError[JsObject]((d.name, JsObject(export(d.values): _*)))
     case n: Num => noneIfError[JsNumber]((n.name, JsNumber(n.value)))
