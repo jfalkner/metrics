@@ -1,5 +1,7 @@
 package falkner.jayson
 
+import java.text.DecimalFormat
+
 import scala.collection.immutable.ListMap
 import scala.util.{Failure, Success, Try}
 
@@ -70,7 +72,13 @@ package object metrics {
   }
 
   object Num {
-    def apply(name: String, value: => Any): Num = new Num(name, value.toString)
+    val df = new DecimalFormat("#.##") // A better way in Scala to do this? f"v%.2f" has undesired pading 1.5 -> 1.50
+
+    def apply(name: String, value: => Any): Num = new Num(name, value match {
+      case v: Float => df.format(v)
+      case v: Double => df.format(v)
+      case _ => value.toString
+    })
   }
 
   object NumArray {

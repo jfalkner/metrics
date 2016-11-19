@@ -19,14 +19,13 @@ import scala.util.{Failure, Success, Try}
   */
 object JSON {
 
-  def write(out: Path, ml: Metrics): Path = Files.write(out, JsObject(export(ml.values): _*).prettyPrint.getBytes)
+  def apply(out: Path, ml: Metrics): Path = apply(out, Seq(ml))
 
-  def write(out: Path, mls: Seq[Metrics]): Path = Files.write(out, JsObject(mls.map(export): _*).prettyPrint.getBytes)
+  def apply(out: Path, mls: Seq[Metrics]): Path = Files.write(out, JsObject(mls.map(export): _*).prettyPrint.getBytes)
 
   def export(o: Metrics): (String, JsValue) = (o.namespace, JsObject(export(o.values): _*))
 
   def export(o: List[Metric]): List[(String, JsValue)] = o.flatMap(_ match {
-    case d: Metrics => noneIfError[JsObject]((d.name, JsObject(export(d.values): _*)))
     case n: Num => noneIfError[JsNumber]((n.name, JsNumber(n.value)))
     case s: Str => noneIfError[JsString]((s.name, JsString(s.value)))
     case b: Bool => noneIfError[JsBoolean]((b.name, JsBoolean(b.value)))
@@ -43,6 +42,7 @@ object JSON {
             case d: Double => (k, JsNumber(d))
           }): _*))
     )
+    case d: Metrics => noneIfError[JsObject]((d.name, JsObject(export(d.values): _*)))
   })
 
   def noneIfError[A](f: => (String, A)): Option[(String, A)] = Try(f) match {

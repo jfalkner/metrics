@@ -39,7 +39,7 @@ class ExampleSpec extends Specification {
     "JSON serialization works" in {
       withCleanup { (p) =>
         println("README.md Example JSON Export")
-        println(new String(Files.readAllBytes(JSON.write(p, new Example()))))
+        println(new String(Files.readAllBytes(JSON(p, new Example()))))
         1 mustEqual 1
       }
     }
