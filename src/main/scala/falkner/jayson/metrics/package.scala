@@ -63,7 +63,7 @@ package object metrics {
     )
   }
 
-  class CatDist(val name: String, val samples: Int, val bins: Map[String, AnyVal], val keys: List[String]) extends Metric with Metrics {
+  class CatDist(val name: String, val samples: Long, val bins: Map[String, AnyVal], val keys: List[String]) extends Metric with Metrics {
     override val namespace: String = ""
     override val version = ""
     override val values: List[Metric] = List(
@@ -95,20 +95,34 @@ package object metrics {
 
   object Dist {
     def apply(name: String, d: => Distribution.Discrete) = Try {
-      new Dist(
-        name,
-        Num("Samples", d.sampleNum),
-        Num("Bins", d.binNum),
-        Num("BinWidth", d.binWidth),
-        Num("Mean", d.mean),
-        Num("Median", d.median),
-        Num("Min", d.min),
-        Num("Max", d.max),
-        NumArray("Bins", d.bins))
+      d.sampleNum match {
+        case sn if sn > 0 =>
+          new Dist(
+            name,
+            Num("Samples", d.sampleNum),
+            Num("Bins", d.binNum),
+            Num("BinWidth", d.binWidth),
+            Num("Mean", d.mean),
+            Num("Median", d.median),
+            Num("Min", d.min),
+            Num("Max", d.max),
+            NumArray("Bins", d.bins))
+        case _ =>
+          new Dist(
+            name,
+            Num("Samples", 0),
+            Num("Bins",""),
+            Num("BinWidth", ""),
+            Num("Mean", ""),
+            Num("Median", ""),
+            Num("Min", ""),
+            Num("Max", ""),
+            NumArray("Bins", Seq()))
+      }
     } match {
       case Success(d) => d
       // supports auto-calc of blank/place holder values -- TODO: restrict this to NullPointerException and bubble up rest?
-      case Failure(_) =>
+      case Failure(t) =>
         new Dist(
           name,
           Num("Samples", ""),
