@@ -43,7 +43,7 @@ class MetricsSpec extends Specification {
           "0.1,3,0.5,0.1,3,1.2," +
           "true," +
           // continuous and discrete dist
-          "3,3,0.33,0.5,0.5,0,1," +
+          "3,3,0.3333,0.5,0.5,0,1," +
           "3,4,1,4,4,2,6," +
           // categorical distribution
           "10,1,3,2,4," +
@@ -65,7 +65,7 @@ class MetricsSpec extends Specification {
         json.fields("DistContinuous") mustEqual JsObject(List(
           ("Samples", JsNumber(3)),
           ("Bins", JsNumber(3)),
-          ("BinWidth", JsNumber("0.33")),
+          ("BinWidth", JsNumber("0.3333")),
           ("Mean", JsNumber(0.5)),
           ("Median", JsNumber(0.5)),
           ("Min", JsNumber(0.0)),

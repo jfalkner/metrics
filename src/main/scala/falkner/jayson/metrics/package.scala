@@ -72,11 +72,21 @@ package object metrics {
   }
 
   object Num {
-    val df = new DecimalFormat("#.##") // A better way in Scala to do this? f"v%.2f" has undesired pading 1.5 -> 1.50
+    val default = new DecimalFormat("#.####") // A better way in Scala to do this? f"v%.2f" has undesired pading 1.5 -> 1.50
 
-    def apply(name: String, value: => Any): Num = new Num(name, value match {
+    def apply(name: String, value: => Any): Num = apply(name, value, default)
+
+    def apply(name: String, value: => Any, df: Option[DecimalFormat]): Num = df match {
+      case Some(df) => apply(name, value, df)
+      case None => apply(name, value)
+    }
+
+    def apply(name: String, value: => Any, df: DecimalFormat): Num = new Num(name, value match {
       case v: Float => df.format(v)
       case v: Double => df.format(v)
+      case v: Int => df.format(v)
+      case v: Long => df.format(v)
+      case v: BigDecimal => df.format(v)
       case _ => value.toString
     })
   }
@@ -94,18 +104,21 @@ package object metrics {
   }
 
   object Dist {
-    def apply(name: String, d: => Distribution.Discrete) = Try {
+
+    def apply(name: String, d: => Distribution.Discrete, df: DecimalFormat): Dist = apply(name, d, Some(df))
+
+    def apply(name: String, d: => Distribution.Discrete, df: Option[DecimalFormat] = None): Dist = Try {
       d.sampleNum match {
         case sn if sn > 0 =>
           new Dist(
             name,
             Num("Samples", d.sampleNum),
             Num("Bins", d.binNum),
-            Num("BinWidth", d.binWidth),
-            Num("Mean", d.mean),
-            Num("Median", d.median),
-            Num("Min", d.min),
-            Num("Max", d.max),
+            Num("BinWidth", d.binWidth, df),
+            Num("Mean", d.mean, df),
+            Num("Median", d.median, df),
+            Num("Min", d.min, df),
+            Num("Max", d.max, df),
             NumArray("Bins", d.bins))
         case _ =>
           new Dist(
@@ -138,16 +151,18 @@ package object metrics {
 
   object DistCon {
 
-    def apply(name: String, d: => Distribution.Continuous) = Try {
+    def apply(name: String, d: => Distribution.Continuous, df: DecimalFormat): Dist = apply(name, d, Some(df))
+
+    def apply(name: String, d: => Distribution.Continuous, df: Option[DecimalFormat] = None): Dist = Try {
       new Dist(
         name,
         Num("Samples", d.sampleNum),
         Num("Bins", d.binNum),
-        Num("BinWidth", d.binWidth),
-        Num("Mean", d.mean),
-        Num("Median", d.median),
-        Num("Min", d.min),
-        Num("Max", d.max),
+        Num("BinWidth", d.binWidth, df),
+        Num("Mean", d.mean, df),
+        Num("Median", d.median, df),
+        Num("Min", d.min, df),
+        Num("Max", d.max, df),
         NumArray("Bins", d.bins))
     } match {
       case Success(d) => d
