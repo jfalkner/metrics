@@ -21,7 +21,7 @@ object JSON {
 
   def apply(out: Path, ml: Metrics): Path = apply(out, Seq(ml))
 
-  def apply(out: Path, mls: Seq[Metrics]): Path = Files.write(out, JsObject(mls.map(export): _*).prettyPrint.getBytes)
+  def apply(out: Path, mls: Seq[Metrics]): Path = Files.write(mkdir(out), JsObject(mls.map(export): _*).prettyPrint.getBytes)
 
   def export(o: Metrics): (String, JsValue) = (o.namespace, JsObject(export(o.values): _*))
 

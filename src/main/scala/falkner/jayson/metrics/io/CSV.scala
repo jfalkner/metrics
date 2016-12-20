@@ -48,7 +48,7 @@ object CSV {
 
   def apply(out: Path, m: Metrics): Path = CSV(out, Seq(m))
 
-  def apply(out: Path, mls: Seq[Metrics]): Path = Files.write(out, CSV(mls :_ *).all.getBytes)
+  def apply(out: Path, mls: Seq[Metrics]): Path = Files.write(mkdir(out), CSV(mls :_ *).all.getBytes)
 
   def apply(mls: Metrics*): Merged = Merged(mls.map(ml => Future(CSV(ml))).map(f => Await.result(f, Duration.Inf)))
 
