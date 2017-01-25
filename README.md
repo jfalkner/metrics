@@ -50,7 +50,7 @@ class Example extends Metrics {
 
 # Export as CSV for JMP, R, Excel, etc. Notice the error doesn't break the export.
 # Also notice that the data is flat and omits histogram bins.
-CSV.export(Paths.get("example.csv", new Example())
+CSV(Paths.get("example.csv", new Example())
 
 # example.csv 
 Name,Age,Data: Samples,Data: Bins,Data: BinWidth,Data: Mean,Data: Median,Data: Min,Data: Max,Borken
@@ -75,10 +75,28 @@ JSON.export("example.json", new Example())
 }
 ```
 
-## Versioning and Caching
+## Suggested Versioning Conventions
 
-TODO: note the conventions used for versioning, conversion and caching.
+These are helpful conventions to follow for supporting common use cases. These examples assume you are using
+[semantic versioning](http://semver.org/), but any version string can be used in a similar fashion.
 
-- version for the specific code~file version
-- apply() conversion to latest format -- if possible
-- blank and currentVersion for placeholders
+### Use 'Code Version' and 'Spec Version"
+
+Make metrics modules that have a `build.sbt` version that is mirrored as the "Code Version" in a companion object, and
+also have a "Spec Version" that represents the version of the underlying file format you are parsing. Together these
+give a way to later sort data based on if the metrics code was updates and/or if the underlying data format changed.
+
+An example of this can be seen in `MetricsWithVersion` and `MetricsWithVersion_1_2_3` [here](https://github.com/jfalkner/metrics-examples/blob/e7a8a22acac87fc2b66b3cbfd01dd2e7fae20ae1/src/main/scala/falkner/jayson/metrics/example/MetricWithVersions.scala#L44-L45) in the `metrics-examples` repo.
+
+### Use and object with `apply` to encapsulate version parsing logic
+
+The main strategy is as simple as capturing the version detecting logic in an `apply` method of an object, which serves
+as the entry point to parsing data. An example is in `MetricsWithVersion` [here](https://github.com/jfalkner/metrics-examples/blob/5f769f9fc46ed3234569b5a2ae572b994eeb4a6b/src/main/scala/falkner/jayson/metrics/example/MetricWithVersions.scala#L29-L37) in the `metrics-example` repo.
+
+### `blank` for making CSV headers
+
+Having a val named `blank` that is a `null` or otherwise no-arg created instance of the current `Metrics` is required 
+for making headers in CSV exports, namely `View` instances. With a `blank` you can easily make a view that is just a
+copy of all values.
+
+An example of `blank` is in `MetricsWithVersion` [here](https://github.com/jfalkner/metrics-examples/blob/618210b4d9ad5dc1ec9798c3653f67e02d64dd8e/src/main/scala/falkner/jayson/metrics/example/MetricWithVersions.scala#L29) in the `metrics-example` repo.
