@@ -29,12 +29,13 @@ sbt clean coverage test coverageReport
 [info] All done. Coverage was [100.00%]
 ```
 
+### Exporting CSV or JSON
+
 See [TestMetrics in MetricsSpec.scala](src/test/scala/falkner/jayson/metrics/MetricsSpec.scala)
-for an example that tests all of the features. Below is brief example
-showing how data is serialized.
+for an example that tests all of the features. Below is brief example showing how data can be serialized to CSV.
 
 ```scala
-# Make a `Metrics` instance to have it be serialized
+// Make a `Metrics` instance to have it be serialized
   class Example extends Metrics {
     override val namespace = "Example"
     override val version = "_"
@@ -46,17 +47,24 @@ showing how data is serialized.
     )
   }
 
-# Export as CSV for JMP, R, Excel, etc. Notice the error doesn't break the export.
-# Also notice that the data is flat and omits histogram bins.
+// Export as CSV for JMP, R, Excel, etc. Notice the error doesn't break the export.
+// Also notice that the data is flat and omits histogram bins.
 CSV(Paths.get("example.csv", new Example())
-
+```
+```bash
 # example.csv 
 Name,Age,Data: Samples,Data: Bins,Data: BinWidth,Data: Mean,Data: Median,Data: Min,Data: Max,Borken
 Data Scientist,21,3,3,0.33333334,0.5,0.5,0.0,1.0,
+```
+ 
+JSON serialization is done similarly, using a the same-named serializer.
 
-# Export as CSV for fully serialized data, convenient for Web/JS or data viz tools.
-JSON.export("example.json", new Example())
+```scala
+// Export as CSV for fully serialized data, convenient for Web/JS or data viz tools.
+JSON("example.json", new Example())
+```
 
+```json
 # example.json
 {
   "Name": "Data Scientist",
@@ -72,6 +80,8 @@ JSON.export("example.json", new Example())
   }
 }
 ```
+
+### Custom CSV formatting: subsets, ordering and renaming columns
 
 A more advanced use of this API is to expose a `View`, which is exporting tabular data (CSV) with any arbitrary subset
 of values, in any column order and with optional custom naming for the columns. This is helpful since most of the usage 
