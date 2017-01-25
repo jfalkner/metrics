@@ -33,20 +33,18 @@ See [TestMetrics in MetricsSpec.scala](src/test/scala/falkner/jayson/metrics/Met
 for an example that tests all of the features. Below is brief example
 showing how data is serialized.
 
-```
+```scala
 # Make a `Metrics` instance to have it be serialized
-class Example extends Metrics {
-  override lazy val values: List[Metric] = List(
-    Str("Name", calcName),
-    Num("Age", calcAge),
-    Dist("Data", calcContinuousDist(Seq(0f, 1f, 0.5f), nBins = 3, sort = true)),
-    Num("Borken", willThrowError)
-  )
-    
-  val willThrowError = () => throw new Exception("Calculation failed!")
-  val calcName = () => "Data Scientist"
-  val calcAge = () => "21"
-}
+  class Example extends Metrics {
+    override val namespace = "Example"
+    override val version = "_"
+    override lazy val values: List[Metric] = List(
+      Str("Name", "Data Scientist"),
+      Num("Age", "123"),
+      DistCon("Data", calcContinuous(Seq(0f, 1f, 0.5f), nBins = 3, sort = true)),
+      Num("Borken", throw new Exception("Calculation failed!"))
+    )
+  }
 
 # Export as CSV for JMP, R, Excel, etc. Notice the error doesn't break the export.
 # Also notice that the data is flat and omits histogram bins.
@@ -74,6 +72,26 @@ JSON.export("example.json", new Example())
   }
 }
 ```
+
+A more advanced use of this API is to expose a `View`, which is exporting tabular data (CSV) with any arbitrary subset
+of values, in any column order and with optional custom naming for the columns. This is helpful since most of the usage 
+of this API is to expose tabular exports for Excel, JMP, R, Tableau, Spotfire and ilk.
+
+```scala
+class ExampleView extends View {
+  override lazy val name = "Example View"
+  override lazy val description = "An example custom tabular export for the metrics API documentation."
+  // show just three columns, "name", "mean" and "median, and force lowercase names -- for whatever reason that is preferred
+  override lazy val metrics = List[Col] {
+    Col("name", "Example", "Name"),
+    Col("mean", "Example", "Data", Some("Mean")),
+    Col("median", "Example", "Data", Some("Median")),
+  }
+}
+```
+
+Export of a view is usually handled by the database. See [`Cache.queriesToCsv`](https://github.com/jfalkner/metrics-cache/blob/d484ae86394f04ab4d5187d97b168e97b6f986d6/src/main/scala/falkner/jayson/metrics/cache/Cache.scala#L35) for an example.
+
 
 ## Suggested Versioning Conventions
 
