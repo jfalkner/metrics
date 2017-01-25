@@ -2,7 +2,7 @@
 
 A simple, Scala-based framework for extracting data and exporting it to JSON
 and/or CSV. Convenient for making data that Web/JS visualizations use or
-for users relying on tools such as JMP, R, Excel, etc.
+for users relying on tools such as JMP, R, Excel, Tableau, Spotfire, etc.
 
 ## Key Features
 
@@ -57,7 +57,7 @@ Name,Age,Data: Samples,Data: Bins,Data: BinWidth,Data: Mean,Data: Median,Data: M
 Data Scientist,21,3,3,0.33333334,0.5,0.5,0.0,1.0,
 ```
  
-JSON serialization is done similarly, using a the same-named serializer.
+JSON serialization is done similarly, using a self-named serializer.
 
 ```scala
 // Export as CSV for fully serialized data, convenient for Web/JS or data viz tools.
